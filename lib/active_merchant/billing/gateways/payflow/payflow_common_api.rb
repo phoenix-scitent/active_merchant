@@ -196,9 +196,10 @@ module ActiveMerchant #:nodoc:
         raw_response = ssl_post(test? ? self.test_url : self.live_url, request, headers)
         response = parse(raw_response)
         puts("-----------------------------New CC payment")
+        filtered_body = request.to_s.gsub(/<([^>]+)>([^<]+)<\/\1>/) { "#{$1}" == "CardNum" ? "<CardNum>[Filtered CC ending in #{$2.last(4)}]</CardNum>" : "<#{$1}>#{$2}</#{$1}>" }
         puts("Payment Log | Request Head: #{headers.to_s}")
-        puts("Payment Log | Request Body: #{request.to_s}")
-        puts("Payment Log | Request Resp: #{raw_response.to_s}")
+        puts("Payment Log | Request Body: #{filtered_body.to_s}")
+        puts("Payment Log | Raw Response: #{raw_response.to_s}")
 
     	  build_response(response[:result] == "0", response[:message], response,
     	    :test => test?,
